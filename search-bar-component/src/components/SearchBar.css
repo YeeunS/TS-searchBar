@@ -1,4 +1,3 @@
-/* src/components/SearchBar.css */
 .search-bar {
   position: relative;
   width: 300px;
@@ -13,7 +12,7 @@
 .search-bar input {
   width: 100%;
   padding: 10px;
-  padding-right: 60px; /* Adjust for clear and dropdown buttons */
+  padding-right: 60px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
@@ -57,7 +56,7 @@
   margin: 0;
   padding: 0;
   position: absolute;
-  top: calc(100% + 5px); /* Aligns the dropdown below the input */
+  top: calc(100% + 5px);
   left: 0;
   width: 100%;
   background: white;
