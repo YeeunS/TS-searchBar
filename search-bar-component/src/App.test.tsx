@@ -5,6 +5,6 @@ import App from "./App";
 
 test("renders search bar component", () => {
   render(<App />);
-  const inputElement = screen.getByPlaceholderText(/search books/i);
+  const inputElement = screen.getByPlaceholderText(/movie/i);
   expect(inputElement).toBeInTheDocument();
 });

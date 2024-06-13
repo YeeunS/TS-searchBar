@@ -5,8 +5,8 @@ module.exports = {
     "^.+\\.(ts|tsx)$": "ts-jest",
     "^.+\\.(js|jsx)$": "babel-jest",
   },
+  transformIgnorePatterns: ["/node_modules/(?!axios)"],
   moduleNameMapper: {
     "\\.(css|less)$": "identity-obj-proxy",
   },
-  transformIgnorePatterns: ["/node_modules/(?!(axios)/)"],
 };

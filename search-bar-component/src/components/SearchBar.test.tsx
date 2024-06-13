@@ -9,7 +9,7 @@ jest.mock("axios");
 describe("SearchBar", () => {
   it("renders input field", () => {
     render(<SearchBar />);
-    expect(screen.getByPlaceholderText(/search books/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/movie/i)).toBeInTheDocument();
   });
 
   it("fetches and displays suggestions as user types", async () => {
@@ -24,7 +24,7 @@ describe("SearchBar", () => {
 
     render(<SearchBar />);
 
-    fireEvent.change(screen.getByPlaceholderText(/search books/i), {
+    fireEvent.change(screen.getByPlaceholderText(/movie/i), {
       target: { value: "book" },
     });
 
@@ -46,7 +46,7 @@ describe("SearchBar", () => {
 
     render(<SearchBar />);
 
-    fireEvent.change(screen.getByPlaceholderText(/search books/i), {
+    fireEvent.change(screen.getByPlaceholderText(/movie/i), {
       target: { value: "book" },
     });
 
