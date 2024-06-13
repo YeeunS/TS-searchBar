@@ -24,7 +24,6 @@ const SearchBar: React.FC = () => {
         (item: any) => item.volumeInfo.title
       );
 
-      // Prioritize titles that start with the searchQuery
       const sortedTitles = titles.sort((a: string, b: string) => {
         if (
           a.toLowerCase().startsWith(searchQuery.toLowerCase()) &&
@@ -41,7 +40,7 @@ const SearchBar: React.FC = () => {
         return a.localeCompare(b);
       });
 
-      console.log("Fetched titles:", sortedTitles); // Debugging line
+      console.log("Fetched titles:", sortedTitles);
       setSuggestions(sortedTitles);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
@@ -69,7 +68,7 @@ const SearchBar: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
-    console.log("Input changed to:", newQuery); // Debugging line
+    console.log("Input changed to:", newQuery);
     setQuery(newQuery);
     fetchSuggestions(newQuery);
   };
@@ -120,7 +119,7 @@ const SearchBar: React.FC = () => {
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
-          placeholder="Search books..."
+          placeholder="Movie"
         />
         {query && (
           <button className="clear-button" onClick={handleClear}>
