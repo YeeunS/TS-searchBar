@@ -10,13 +10,13 @@ module.exports = {
     "\\.(css|less)$": "identity-obj-proxy",
   },
   setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
-  collectCoverage: true, // Enable coverage collection
+  collectCoverage: true,
   collectCoverageFrom: [
-    "src/**/*.{js,jsx,ts,tsx}", // Specify the paths to collect coverage from
-    "!src/**/*.d.ts", // Exclude declaration files
-    "!src/setupTests.ts", // Exclude setup files
-    "!src/**/index.ts", // Exclude index files
+    "src/**/*.{js,jsx,ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/setupTests.ts",
+    "!src/**/index.ts",
   ],
-  coverageDirectory: "coverage", // Directory to output coverage reports
-  coverageReporters: ["json", "lcov", "text", "clover"], // Report formats
+  coverageDirectory: "coverage",
+  coverageReporters: ["json", "lcov", "text", "clover"],
 };
