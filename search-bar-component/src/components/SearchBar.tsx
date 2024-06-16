@@ -12,8 +12,8 @@ const SearchBar: React.FC = () => {
   const [highlightIndex, setHighlightIndex] = useState<number>(-1);
   const suggestionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  const debouncedQuery = useDebounce(query, 300); // Use useDebounce hook
-  const throttledQuery = useThrottle(debouncedQuery, 500); // Use useThrottle hook
+  const debouncedQuery = useDebounce(query, 300);
+  const throttledQuery = useThrottle(debouncedQuery, 500);
 
   const fetchSuggestions = useCallback(async (searchQuery: string) => {
     console.log("Fetching suggestions for query:", searchQuery);
