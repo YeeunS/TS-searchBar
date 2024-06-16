@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 import axios from "axios";
+import useDebounce from "../hooks/useDebounce";
 import "./SearchBar.css";
 
 const API_URL = "https://www.googleapis.com/books/v1/volumes";
@@ -17,7 +18,7 @@ const SearchBar: React.FC = () => {
     }
 
     try {
-      const response = await axios.get(`${API_URL}`, {
+      const response = await axios.get(API_URL, {
         params: {
           q: searchQuery,
           startIndex: 0,
@@ -27,17 +28,18 @@ const SearchBar: React.FC = () => {
       const titles = response.data.items.map(
         (item: any) => item.volumeInfo.title
       );
-
       setSuggestions(titles);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
   }, []);
 
+  const debouncedFetchSuggestions = useDebounce(fetchSuggestions, 300);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
-    fetchSuggestions(newQuery);
+    debouncedFetchSuggestions(newQuery);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
