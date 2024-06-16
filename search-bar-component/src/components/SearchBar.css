@@ -20,7 +20,6 @@
   transition: border-color 0.3s;
 }
 
-/* Input field focus style */
 .search-bar input:focus {
   border-color: #007bff;
 }
@@ -34,7 +33,7 @@
   color: #007bff;
   background: white;
   padding: 0 5px;
-  transform: translateY(-50%);
+  transform: translateY(-40%);
 }
 
 /* Title styles */
@@ -46,7 +45,7 @@
   color: #aaa;
   transition: all 0.3s;
   pointer-events: none;
-  transform: translateY(-50%);
+  transform: translateY(-40%);
 }
 
 .search-bar .arrow-icon {

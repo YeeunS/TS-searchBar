@@ -123,8 +123,10 @@ describe("SearchBar", () => {
     });
 
     fireEvent.click(screen.getByText("×"));
-    expect(input).toHaveValue("");
-    expect(screen.queryByText("Suggestion 1")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(input).toHaveValue("");
+      expect(screen.queryByText("Suggestion 1")).not.toBeInTheDocument();
+    });
   });
 
   it("closes suggestions on escape key", async () => {
