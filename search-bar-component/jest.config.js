@@ -15,6 +15,7 @@ module.exports = {
     "src/**/*.{js,jsx,ts,tsx}",
     "!src/**/*.d.ts",
     "!src/setupTests.ts",
+    "!src/reportWebVitals.ts",
     "!src/**/index.ts",
   ],
   coverageDirectory: "coverage",

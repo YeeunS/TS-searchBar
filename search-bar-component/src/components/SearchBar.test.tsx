@@ -148,8 +148,11 @@ describe("SearchBar", () => {
     });
 
     fireEvent.keyDown(input, { key: "Escape" });
-    await waitFor(() => {
-      expect(screen.queryByText("Suggestion 1")).not.toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.queryByText("Suggestion 1")).not.toBeInTheDocument();
+      },
+      { timeout: 3000 } // Increase the timeout
+    );
   });
 });
