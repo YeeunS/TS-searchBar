@@ -155,4 +155,66 @@ describe("SearchBar", () => {
       { timeout: 3000 } // Increase the timeout
     );
   });
+
+  it("renders without crashing", () => {
+    const { container } = render(<SearchBar />);
+    expect(container).toBeInTheDocument();
+  });
+
+  it("initializes with empty state", () => {
+    render(<SearchBar />);
+    const input = screen.getByRole("textbox");
+    expect(input).toHaveValue("");
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+  });
+
+  it("fetches no suggestions when query is empty", async () => {
+    render(<SearchBar />);
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "" } });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("listitem")).not.toBeInTheDocument();
+    });
+  });
+
+  it("handles API call failure gracefully", async () => {
+    (axios.get as jest.MockedFunction<typeof axios.get>).mockRejectedValue(
+      new Error("Network error")
+    );
+
+    render(<SearchBar />);
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "suggest" } });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("listitem")).not.toBeInTheDocument();
+    });
+  });
+
+  it("highlights suggestions correctly with mouse hover", async () => {
+    (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValue({
+      data: {
+        items: [
+          { volumeInfo: { title: "Suggestion 1" } },
+          { volumeInfo: { title: "Suggestion 2" } },
+        ],
+      },
+    });
+
+    render(<SearchBar />);
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "suggest" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("Suggestion 1")).toBeInTheDocument();
+      expect(screen.getByText("Suggestion 2")).toBeInTheDocument();
+    });
+
+    fireEvent.mouseOver(screen.getByText("Suggestion 1"));
+    expect(screen.getByText("Suggestion 1")).toHaveClass("highlighted");
+
+    fireEvent.mouseOver(screen.getByText("Suggestion 2"));
+    expect(screen.getByText("Suggestion 2")).toHaveClass("highlighted");
+  });
 });
