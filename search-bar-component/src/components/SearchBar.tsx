@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import axios from "axios";
-import useDebounce from "../hooks/useDebounce";
+import { useDebounce } from "../hooks/useDebounce";
+import { useThrottle } from "../hooks/useThrottle";
 import "./SearchBar.css";
 
 const API_URL = "https://www.googleapis.com/books/v1/volumes";
@@ -11,14 +12,18 @@ const SearchBar: React.FC = () => {
   const [highlightIndex, setHighlightIndex] = useState<number>(-1);
   const suggestionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
+  const debouncedQuery = useDebounce(query, 300); // Use useDebounce hook
+  const throttledQuery = useThrottle(debouncedQuery, 500); // Use useThrottle hook
+
   const fetchSuggestions = useCallback(async (searchQuery: string) => {
+    console.log("Fetching suggestions for query:", searchQuery);
     if (searchQuery.length === 0) {
       setSuggestions([]);
       return;
     }
 
     try {
-      const response = await axios.get(API_URL, {
+      const response = await axios.get(`${API_URL}`, {
         params: {
           q: searchQuery,
           startIndex: 0,
@@ -28,18 +33,23 @@ const SearchBar: React.FC = () => {
       const titles = response.data.items.map(
         (item: any) => item.volumeInfo.title
       );
+
       setSuggestions(titles);
+      console.log("Fetched titles:", titles);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
   }, []);
 
-  const debouncedFetchSuggestions = useDebounce(fetchSuggestions, 300);
+  useEffect(() => {
+    if (throttledQuery) {
+      fetchSuggestions(throttledQuery);
+    }
+  }, [throttledQuery, fetchSuggestions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuery = e.target.value;
-    setQuery(newQuery);
-    debouncedFetchSuggestions(newQuery);
+    setQuery(e.target.value);
+    console.log("Input changed to:", e.target.value);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -1,33 +1,22 @@
-import { useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
-const useThrottle = (callback: (...args: any[]) => void, delay: number) => {
-  const lastCallRef = useRef<number | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const throttledFunction = (...args: any[]) => {
-    const now = Date.now();
-    if (lastCallRef.current === null || now - lastCallRef.current >= delay) {
-      callback(...args);
-      lastCallRef.current = now;
-    } else {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      timeoutRef.current = setTimeout(() => {
-        callback(...args);
-      }, delay - (now - lastCallRef.current));
-    }
-  };
+export const useThrottle = <T>(value: T, delay: number): T => {
+  const [throttledValue, setThrottledValue] = useState(value);
+  const lastExecuted = useRef(Date.now());
 
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+    const handler = setTimeout(() => {
+      const now = Date.now();
+      if (now - lastExecuted.current >= delay) {
+        setThrottledValue(value);
+        lastExecuted.current = now;
       }
+    }, delay - (Date.now() - lastExecuted.current));
+
+    return () => {
+      clearTimeout(handler);
     };
-  }, []);
+  }, [value, delay]);
 
-  return throttledFunction;
+  return throttledValue;
 };
-
-export default useThrottle;
