@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import axios from "axios";
 import "./SearchBar.css";
 
@@ -8,7 +8,7 @@ const SearchBar: React.FC = () => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [highlightIndex, setHighlightIndex] = useState<number>(-1);
-  const [results, setResults] = useState<string[]>([]);
+  const suggestionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   const fetchSuggestions = useCallback(async (searchQuery: string) => {
     if (searchQuery.length === 0) {
@@ -17,93 +17,74 @@ const SearchBar: React.FC = () => {
     }
 
     try {
-      const response = await axios.get(
-        `${API_URL}?q=${searchQuery}&startIndex=0&maxResults=20`
-      );
+      const response = await axios.get(`${API_URL}`, {
+        params: {
+          q: searchQuery,
+          startIndex: 0,
+          maxResults: 20,
+        },
+      });
       const titles = response.data.items.map(
         (item: any) => item.volumeInfo.title
       );
 
-      const sortedTitles = titles.sort((a: string, b: string) => {
-        if (
-          a.toLowerCase().startsWith(searchQuery.toLowerCase()) &&
-          !b.toLowerCase().startsWith(searchQuery.toLowerCase())
-        ) {
-          return -1;
-        }
-        if (
-          !a.toLowerCase().startsWith(searchQuery.toLowerCase()) &&
-          b.toLowerCase().startsWith(searchQuery.toLowerCase())
-        ) {
-          return 1;
-        }
-        return a.localeCompare(b);
-      });
-
-      console.log("Fetched titles:", sortedTitles);
-      setSuggestions(sortedTitles);
+      setSuggestions(titles);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
   }, []);
 
-  const fetchResults = useCallback(async (searchQuery: string) => {
-    if (searchQuery.length === 0) {
-      setResults([]);
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        `${API_URL}?q=${searchQuery}&startIndex=0&maxResults=20`
-      );
-      const titles = response.data.items.map(
-        (item: any) => item.volumeInfo.title
-      );
-      setResults(titles);
-    } catch (error) {
-      console.error("Error fetching results:", error);
-    }
-  }, []);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
-    console.log("Input changed to:", newQuery);
     setQuery(newQuery);
     fetchSuggestions(newQuery);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "ArrowDown") {
-      setHighlightIndex((prevIndex) =>
-        Math.min(prevIndex + 1, suggestions.length - 1)
-      );
-    } else if (e.key === "ArrowUp") {
-      setHighlightIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-    } else if (e.key === "Enter") {
-      if (highlightIndex >= 0) {
-        setQuery(suggestions[highlightIndex]);
+    switch (e.key) {
+      case "ArrowDown":
+        setHighlightIndex((prevIndex) => {
+          const newIndex = (prevIndex + 1) % suggestions.length;
+          suggestionRefs.current[newIndex]?.scrollIntoView({
+            block: "nearest",
+          });
+          return newIndex;
+        });
+        break;
+      case "ArrowUp":
+        setHighlightIndex((prevIndex) => {
+          const newIndex =
+            (prevIndex - 1 + suggestions.length) % suggestions.length;
+          suggestionRefs.current[newIndex]?.scrollIntoView({
+            block: "nearest",
+          });
+          return newIndex;
+        });
+        break;
+      case "Enter":
+        if (highlightIndex >= 0) {
+          const selectedSuggestion = suggestions[highlightIndex];
+          setQuery(selectedSuggestion);
+          setSuggestions([]);
+        }
+        setHighlightIndex(-1);
+        break;
+      case "Escape":
         setSuggestions([]);
-        fetchResults(suggestions[highlightIndex]);
-      } else {
-        fetchResults(query);
-      }
-      setHighlightIndex(-1);
-    } else if (e.key === "Escape") {
-      setSuggestions([]);
+        break;
+      default:
+        break;
     }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
     setSuggestions([]);
-    fetchResults(suggestion);
   };
 
   const handleClear = () => {
     setQuery("");
     setSuggestions([]);
-    setResults([]);
   };
 
   const handleBlur = () => {
@@ -119,19 +100,23 @@ const SearchBar: React.FC = () => {
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
-          placeholder="Movie"
+          placeholder=" "
         />
+        <span className="input-title">Movie</span>
         {query && (
           <button className="clear-button" onClick={handleClear}>
             ×
           </button>
         )}
-        <button className="dropdown-button">▼</button>
+        <span className="arrow-icon">
+          {query && suggestions.length > 0 ? "▲" : "▼"}
+        </span>
       </div>
       {suggestions.length > 0 && (
         <ul className="suggestions-list">
           {suggestions.map((suggestion, index) => (
             <li
+              ref={(el) => (suggestionRefs.current[index] = el)}
               key={`${suggestion}-${index}`}
               className={index === highlightIndex ? "highlighted" : ""}
               onMouseEnter={() => setHighlightIndex(index)}
@@ -141,16 +126,6 @@ const SearchBar: React.FC = () => {
             </li>
           ))}
         </ul>
-      )}
-      {results.length > 0 && (
-        <div className="results-list">
-          <h2>Search Results:</h2>
-          <ul>
-            {results.map((result, index) => (
-              <li key={index}>{result}</li>
-            ))}
-          </ul>
-        </div>
       )}
     </div>
   );
